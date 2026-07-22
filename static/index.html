@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindCheck — Mental Health Screening</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background: #f4f7f8;
+    color: #1a2b33;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .navbar {
+    background: #ffffff;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .navbar .logo { font-size: 22px; font-weight: 800; color: #0f7173; }
+  .navbar a { color: #4a5a60; text-decoration: none; margin-left: 24px; font-size: 15px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #d7f0ef, #eaf7f6);
+    padding: 70px 40px 60px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 42px;
+    color: #0f4c4d;
+    margin-bottom: 16px;
+    font-weight: 800;
+  }
+  .hero p {
+    max-width: 640px;
+    margin: 0 auto 10px;
+    font-size: 17px;
+    color: #33474b;
+  }
+  .badges {
+    margin-top: 22px;
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f7173;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* Container */
+  .container { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+
+  .card h2 {
+    color: #0f4c4d;
+    font-size: 22px;
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+  .card .subtitle { color: #6b7c80; font-size: 14px; margin-bottom: 20px; }
+
+  .question { margin-bottom: 20px; }
+  .question p { margin-bottom: 8px; font-weight: 600; font-size: 15px; color: #223; }
+  select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1.5px solid #dde5e6;
+    font-family: inherit;
+    background: #fbfdfd;
+  }
+  select:focus, textarea:focus { outline: none; border-color: #0f7173; }
+  textarea { height: 90px; resize: vertical; }
+
+  button.submit-btn {
+    background: #0f7173;
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: background 0.2s;
+  }
+  button.submit-btn:hover { background: #0b5c5d; }
+
+  /* Result card */
+  #result { display: none; }
+  #result .tier-banner {
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 20px;
+    color: white;
+  }
+  .urgent .tier-banner { background: #c0392b; }
+  .high .tier-banner { background: #d35400; }
+  .moderate .tier-banner { background: #d4a017; }
+  .low .tier-banner { background: #27824a; }
+
+  .score-row { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .score-box {
+    flex: 1;
+    min-width: 140px;
+    background: #f4f7f8;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .score-box .num { font-size: 28px; font-weight: 800; color: #0f4c4d; }
+  .score-box .label { font-size: 13px; color: #6b7c80; margin-top: 4px; }
+
+  .suggestions { background: #f0f9f8; border-radius: 10px; padding: 20px; margin-top: 16px; }
+  .suggestions h3 { margin-top: 0; color: #0f4c4d; font-size: 16px; }
+  .suggestions ul { margin: 10px 0 0; padding-left: 20px; }
+  .suggestions li { margin-bottom: 8px; font-size: 14px; color: #33474b; }
+
+  .crisis-box {
+    background: #fdecea;
+    border: 1.5px solid #e74c3c;
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 16px;
+  }
+  .crisis-box p { margin: 0; color: #a11f10; font-weight: 600; font-size: 14px; }
+
+  .disclaimer { text-align: center; font-size: 13px; color: #8a9a9e; margin-top: 30px; }
+
+  footer { text-align: center; padding: 30px; color: #8a9a9e; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">MindCheck</div>
+  <div>
+    <a href="#screening">Take Screening</a>
+    <a href="#resources-section">Resources</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Understand Your Mental Wellbeing</h1>
+  <p>A free, confidential screening using clinically validated tools (PHQ-9 and GAD-7), combined with AI-assisted analysis, to help you understand what you might be experiencing — and what to do next.</p>
+  <div class="badges">
+    <div class="badge">✓ Free</div>
+    <div class="badge">✓ Confidential</div>
+    <div class="badge">✓ Evidence-Based</div>
+    <div class="badge">✓ Instant Results</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="card" id="screening">
+    <h2>Depression Screening (PHQ-9)</h2>
+    <p class="subtitle">Over the last 2 weeks, how often have you been bothered by the following?</p>
+    <div id="phq9-container"></div>
+  </div>
+
+  <div class="card">
+    <h2>Anxiety Screening (GAD-7)</h2>
+    <p class="subtitle">Over the last 2 weeks, how often have you been bothered by the following?</p>
+    <div id="gad7-container"></div>
+  </div>
+
+  <div class="card">
+    <h2>Tell us more (optional)</h2>
+    <p class="subtitle">Describing how you've been feeling in your own words helps us understand you better.</p>
+    <div class="question">
+      <textarea id="freeText" placeholder="e.g. I've been feeling really overwhelmed lately and can't focus at work..."></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitScreening()">Get My Results</button>
+  </div>
+
+  <div class="card" id="result">
+    <div class="tier-banner" id="tierBanner"></div>
+    <div class="score-row">
+      <div class="score-box">
+        <div class="num" id="phq9ScoreNum">-</div>
+        <div class="label" id="phq9SeverityLabel">Depression</div>
+      </div>
+      <div class="score-box">
+        <div class="num" id="gad7ScoreNum">-</div>
+        <div class="label" id="gad7SeverityLabel">Anxiety</div>
+      </div>
+    </div>
+    <p id="actionText" style="font-weight:600;"></p>
+    <div class="suggestions" id="suggestionsBox"></div>
+    <div class="crisis-box" id="crisisBox" style="display:none;">
+      <p>⚠ If you're having thoughts of self-harm, please reach out immediately: call your local emergency number, or a crisis helpline. You are not alone, and help is available right now.</p>
+    </div>
+  </div>
+
+  <div class="card" id="resources-section">
+    <h2>General Wellbeing Tips</h2>
+    <div class="suggestions">
+      <ul>
+        <li>Maintain a consistent sleep schedule — aim for 7-9 hours per night</li>
+        <li>Stay physically active, even short walks can improve mood</li>
+        <li>Stay connected with friends and family, isolation worsens most mental health conditions</li>
+        <li>Limit alcohol and avoid using substances to cope with difficult emotions</li>
+        <li>Practice mindfulness or breathing exercises during stressful moments</li>
+        <li>Don't hesitate to reach out to a mental health professional — seeking help is a sign of strength</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="disclaimer">This tool provides a screening, not a diagnosis. Please consult a licensed mental health professional for a full evaluation.</p>
+
+</div>
+
+<footer>MindCheck — Built as a mental health awareness and screening project.</footer>
+
+<script>
+const phq9Questions = [
+  "Little interest or pleasure in doing things",
+  "Feeling down, depressed, or hopeless",
+  "Trouble falling or staying asleep, or sleeping too much",
+  "Feeling tired or having little energy",
+  "Poor appetite or overeating",
+  "Feeling bad about yourself - or that you are a failure",
+  "Trouble concentrating on things",
+  "Moving or speaking slowly, or being fidgety/restless",
+  "Thoughts that you would be better off dead or of hurting yourself"
+];
+
+const gad7Questions = [
+  "Feeling nervous, anxious, or on edge",
+  "Not being able to stop or control worrying",
+  "Worrying too much about different things",
+  "Trouble relaxing",
+  "Being so restless that it's hard to sit still",
+  "Becoming easily annoyed or irritable",
+  "Feeling afraid as if something awful might happen"
+];
+
+const options = `
+  <option value="0">Not at all</option>
+  <option value="1">Several days</option>
+  <option value="2">More than half the days</option>
+  <option value="3">Nearly every day</option>
+`;
+
+function renderQuestions(containerId, questions, prefix) {
+  const container = document.getElementById(containerId);
+  questions.forEach((q, i) => {
+    container.innerHTML += `
+      <div class="question">
+        <p>${i + 1}. ${q}</p>
+        <select id="${prefix}_${i}">${options}</select>
+      </div>
+    `;
+  });
+}
+
+renderQuestions("phq9-container", phq9Questions, "phq9");
+renderQuestions("gad7-container", gad7Questions, "gad7");
+
+const suggestionsByTier = {
+  urgent: [
+    "Please contact a crisis helpline or emergency services immediately.",
+    "Reach out to a trusted friend or family member right now — don't stay alone.",
+    "A mental health professional will be notified to follow up with you as soon as possible."
+  ],
+  high: [
+    "We strongly recommend booking a session with a licensed counselor this week.",
+    "Try to maintain a daily routine, even small structure can help during difficult periods.",
+    "Avoid making major life decisions until you've spoken with a professional.",
+    "Reach out to someone you trust and let them know how you've been feeling."
+  ],
+  moderate: [
+    "Consider booking a counseling session to talk through what you're experiencing.",
+    "Practice daily grounding techniques such as deep breathing or short walks.",
+    "Keep a simple journal of your mood to track patterns over the next 2 weeks.",
+    "Prioritize sleep and reduce caffeine/alcohol intake."
+  ],
+  low: [
+    "Keep up your current habits that support your mental wellbeing.",
+    "Regular exercise, good sleep, and social connection all help maintain good mental health.",
+    "Re-check in with this screening periodically, especially during stressful periods."
+  ]
+};
+
+async function submitScreening() {
+  const phq9_answers = phq9Questions.map((_, i) => parseInt(document.getElementById(`phq9_${i}`).value));
+  const gad7_answers = gad7Questions.map((_, i) => parseInt(document.getElementById(`gad7_${i}`).value));
+  const free_text = document.getElementById("freeText").value;
+
+  const resultDiv = document.getElementById("result");
+  resultDiv.style.display = "block";
+  resultDiv.scrollIntoView({ behavior: "smooth" });
+
+  try {
+    const response = await fetch("/screen", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phq9_answers, gad7_answers, free_text })
+    });
+
+    const data = await response.json();
+
+    resultDiv.className = "card " + data.final_risk_tier;
+
+    document.getElementById("tierBanner").innerText = "Risk Level: " + data.final_risk_tier.toUpperCase();
+    document.getElementById("phq9ScoreNum").innerText = data.phq9_score;
+    document.getElementById("phq9SeverityLabel").innerText = "Depression — " + data.phq9_severity;
+    document.getElementById("gad7ScoreNum").innerText = data.gad7_score;
+    document.getElementById("gad7SeverityLabel").innerText = "Anxiety — " + data.gad7_severity;
+    document.getElementById("actionText").innerText = data.recommended_action;
+
+    const suggestions = suggestionsByTier[data.final_risk_tier] || suggestionsByTier.low;
+    document.getElementById("suggestionsBox").innerHTML = `
+      <h3>Suggestions for you</h3>
+      <ul>${suggestions.map(s => `<li>${s}</li>`).join("")}</ul>
+    `;
+
+    document.getElementById("crisisBox").style.display = data.self_harm_flag ? "block" : "none";
+
+  } catch (err) {
+    resultDiv.innerHTML = "<p>Something went wrong. Please try again.</p>";
+  }
+}
+</script>
+
+</body>
+</html>
