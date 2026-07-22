@@ -11,7 +11,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all your project files into the container
-COPY . .
+COPY 
+RUN python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='j-hartmann/emotion-english-distilroberta-base', local_dir='./emotion_model')". .
 
 # Tell Docker this container will use port 8000
 EXPOSE 8000
