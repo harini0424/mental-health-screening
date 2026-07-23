@@ -163,8 +163,8 @@
 <div class="navbar">
   <div class="logo">MindCheck</div>
   <div>
-    <a href="#screening">Take Screening</a>
-    <a href="#resources-section">Resources</a>
+    <a href="/app">Take Screening</a>
+    <a href="/static/resources.html">Resources</a>
   </div>
 </div>
 
@@ -218,20 +218,6 @@
     <div class="suggestions" id="suggestionsBox"></div>
     <div class="crisis-box" id="crisisBox" style="display:none;">
       <p>⚠ If you're having thoughts of self-harm, please reach out immediately: call your local emergency number, or a crisis helpline. You are not alone, and help is available right now.</p>
-    </div>
-  </div>
-
-  <div class="card" id="resources-section">
-    <h2>General Wellbeing Tips</h2>
-    <div class="suggestions">
-      <ul>
-        <li>Maintain a consistent sleep schedule — aim for 7-9 hours per night</li>
-        <li>Stay physically active, even short walks can improve mood</li>
-        <li>Stay connected with friends and family, isolation worsens most mental health conditions</li>
-        <li>Limit alcohol and avoid using substances to cope with difficult emotions</li>
-        <li>Practice mindfulness or breathing exercises during stressful moments</li>
-        <li>Don't hesitate to reach out to a mental health professional — seeking help is a sign of strength</li>
-      </ul>
     </div>
   </div>
 
@@ -351,6 +337,54 @@ async function submitScreening() {
   }
 }
 </script>
+<div id="faqWidget" style="position:fixed; bottom:20px; right:20px; z-index:100;">
+  <button id="faqToggle" style="background:#0f7173;color:white;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">💬</button>
+  <div id="faqPanel" style="display:none;position:absolute;bottom:66px;right:0;width:300px;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:16px;">
+    <h3 style="margin-top:0;color:#0f4c4d;font-size:16px;">Quick Help</h3>
+    <div id="faqQuestions"></div>
+    <div id="faqAnswer" style="margin-top:12px;font-size:14px;color:#33474b;display:none;background:#f4f7f8;padding:12px;border-radius:8px;"></div>
+  </div>
+</div>
 
+<script>
+const faqData = [
+  {
+    q: "What does my score mean?",
+    a: "Your PHQ-9 and GAD-7 scores map to a severity band (minimal, mild, moderate, severe) based on validated clinical rubrics. Higher scores suggest more significant symptoms, but this is a screening tool, not a diagnosis."
+  },
+  {
+    q: "How do I book a counselor?",
+    a: "If your result suggests booking a counselor, we recommend reaching out to a licensed mental health professional in your area, or your institution's counseling services if available."
+  },
+  {
+    q: "What's a crisis helpline number?",
+    a: "India: iCall — 9152987821 (Mon-Sat, 8am-10pm). AASRA — 9820466726 (24x7). If you're in immediate danger, contact your local emergency number."
+  },
+  {
+    q: "Is this a diagnosis?",
+    a: "No. This tool provides a screening based on standard questionnaires, not a clinical diagnosis. Please consult a licensed professional for a full evaluation."
+  }
+];
+
+const faqToggle = document.getElementById("faqToggle");
+const faqPanel = document.getElementById("faqPanel");
+const faqQuestions = document.getElementById("faqQuestions");
+const faqAnswer = document.getElementById("faqAnswer");
+
+faqData.forEach((item, i) => {
+  const btn = document.createElement("button");
+  btn.innerText = item.q;
+  btn.style = "display:block;width:100%;text-align:left;background:#f4f7f8;border:none;padding:8px 10px;margin-bottom:6px;border-radius:6px;cursor:pointer;font-size:13px;";
+  btn.onclick = () => {
+    faqAnswer.innerText = item.a;
+    faqAnswer.style.display = "block";
+  };
+  faqQuestions.appendChild(btn);
+});
+
+faqToggle.onclick = () => {
+  faqPanel.style.display = faqPanel.style.display === "none" ? "block" : "none";
+};
+</script>
 </body>
 </html>
