@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screening History — MindCheck</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f7f8; color: #1a2b33; }
+  .navbar { background: #fff; padding: 18px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; }
+  .navbar .logo { font-size: 22px; font-weight: 800; color: #0f7173; }
+  .navbar a { color: #4a5a60; text-decoration: none; margin-left: 24px; font-size: 15px; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { color: #0f4c4d; }
+  .subtitle { color: #6b7c80; margin-bottom: 30px; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  th, td { padding: 12px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid #eee; }
+  th { background: #0f7173; color: white; font-weight: 600; }
+  tr:hover { background: #f7fbfb; }
+  .tier-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; color: white; display: inline-block; }
+  .urgent { background: #c0392b; }
+  .high { background: #d35400; }
+  .moderate { background: #d4a017; }
+  .low { background: #27824a; }
+  .flag-yes { color: #c0392b; font-weight: 700; }
+  .flag-no { color: #6b7c80; }
+  .loading, .empty { text-align: center; padding: 60px 20px; color: #6b7c80; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">MindCheck</div>
+  <div>
+    <a href="/app">Take Screening</a>
+    <a href="/static/resources.html">Resources</a>
+    <a href="/static/history.html">History</a>
+  </div>
+</div>
+
+<div class="container">
+  <h1>Screening History</h1>
+  <p class="subtitle">Anonymized record of past screenings stored for audit and trend purposes.</p>
+  <div id="tableContainer" class="loading">Loading history...</div>
+</div>
+
+<script>
+async function loadHistory() {
+  const container = document.getElementById("tableContainer");
+  try {
+    const response = await fetch("/history?limit=50");
+    const data = await response.json();
+
+    if (data.length === 0) {
+      container.className = "empty";
+      container.innerText = "No screenings recorded yet.";
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>#</th><th>Date</th><th>PHQ-9</th><th>GAD-7</th>
+      <th>Self-Harm Flag</th><th>Emotion Signal</th><th>Risk Tier</th><th>Action</th>
+    </tr></thead><tbody>`;
+
+    data.forEach(r => {
+      const date = r.created_at ? new Date(r.created_at).toLocaleString() : "-";
+      html += `<tr>
+        <td>${r.id}</td>
+        <td>${date}</td>
+        <td>${r.phq9_score} (${r.phq9_severity})</td>
+        <td>${r.gad7_score} (${r.gad7_severity})</td>
+        <td class="${r.self_harm_flag ? 'flag-yes' : 'flag-no'}">${r.self_harm_flag ? 'YES' : 'No'}</td>
+        <td>${r.emotion_risk_signal}</td>
+        <td><span class="tier-badge ${r.final_risk_tier}">${r.final_risk_tier.toUpperCase()}</span></td>
+        <td>${r.recommended_action}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    container.outerHTML = html;
+  } catch (err) {
+    container.className = "empty";
+    container.innerText = "Failed to load history.";
+  }
+}
+
+loadHistory();
+</script>
+
+</body>
+</html>

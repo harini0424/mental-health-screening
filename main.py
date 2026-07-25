@@ -107,3 +107,24 @@ def screen(request: ScreeningRequest):
 def chat(request: ChatRequest):
     result = get_chatbot_response(request.message)
     return result
+@app.get("/history")
+def get_history(limit: int = 50):
+    db = SessionLocal()
+    records = db.query(ScreeningResult).order_by(ScreeningResult.id.desc()).limit(limit).all()
+    db.close()
+
+    return [
+        {
+            "id": r.id,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "phq9_score": r.phq9_score,
+            "phq9_severity": r.phq9_severity,
+            "gad7_score": r.gad7_score,
+            "gad7_severity": r.gad7_severity,
+            "self_harm_flag": r.self_harm_flag,
+            "emotion_risk_signal": r.emotion_risk_signal,
+            "final_risk_tier": r.final_risk_tier,
+            "recommended_action": r.recommended_action
+        }
+        for r in records
+    ]
