@@ -7,6 +7,7 @@ from typing import List, Optional
 from questionnaire import score_phq9, score_gad7, check_self_harm_flag
 from emotion_analysis import get_risk_signal
 from database import SessionLocal, ScreeningResult, init_db
+from chatbot import get_chatbot_response
 
 app = FastAPI(title="Mental Health Screening API")
 
@@ -31,6 +32,10 @@ class ScreeningResponse(BaseModel):
     emotion_risk_signal: str
     final_risk_tier: str
     recommended_action: str
+
+
+class ChatRequest(BaseModel):
+    message: str
 
 
 @app.get("/")
@@ -96,3 +101,9 @@ def screen(request: ScreeningRequest):
         final_risk_tier=final_tier,
         recommended_action=action
     )
+
+
+@app.post("/chat")
+def chat(request: ChatRequest):
+    result = get_chatbot_response(request.message)
+    return result

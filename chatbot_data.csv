@@ -1,0 +1,94 @@
+text,intent
+what does my score mean,score_meaning
+what is a phq-9 score,score_meaning
+explain my result,score_meaning
+what does moderate risk mean,score_meaning
+i dont understand my score,score_meaning
+what does severe mean,score_meaning
+is my score bad,score_meaning
+what does gad-7 measure,score_meaning
+how is my risk calculated,score_meaning
+what does urgent tier mean,score_meaning
+how do i book a counselor,counselor_booking
+where can i find a therapist,counselor_booking
+i want to talk to someone,counselor_booking
+how do i get professional help,counselor_booking
+can you recommend a counselor,counselor_booking
+i need to see a psychiatrist,counselor_booking
+how do i schedule an appointment,counselor_booking
+who should i talk to,counselor_booking
+i want therapy,counselor_booking
+find me a mental health professional,counselor_booking
+i want to hurt myself,crisis
+i dont want to live anymore,crisis
+i feel like ending it all,crisis
+i cant go on like this,crisis
+there is no point anymore,crisis
+i want to disappear,crisis
+i am thinking of suicide,crisis
+i feel hopeless and want to give up,crisis
+nobody would care if i was gone,crisis
+i cant take this pain anymore,crisis
+what are some self help tips,general_resources
+how can i manage stress,general_resources
+tips for better sleep,general_resources
+how to deal with anxiety,general_resources
+breathing exercises for anxiety,general_resources
+how to improve my mood,general_resources
+what helps with depression,general_resources
+exercise for mental health,general_resources
+how to reduce stress naturally,general_resources
+self care tips,general_resources
+what is this tool,about_tool
+is this a diagnosis,about_tool
+how accurate is this,about_tool
+who built this,about_tool
+is my data private,about_tool
+what is phq-9,about_tool
+what is gad-7,about_tool
+can i trust this result,about_tool
+is this a replacement for a doctor,about_tool
+how does this work,about_tool
+hi,greeting
+hello,greeting
+hey there,greeting
+thanks,greeting
+thank you,greeting
+good morning,greeting
+whats up,greeting
+ok thanks bye,greeting
+appreciate it,greeting
+nice to meet you,greeting
+i want to kill myself,crisis
+life isnt worth living,crisis
+i am done with everything,crisis
+i have thoughts of dying,crisis
+i want to end my life,crisis
+everything feels pointless,crisis
+i cant handle this anymore,crisis
+i feel like giving up on life,crisis
+no one would notice if i disappeared,crisis
+i think about death a lot,crisis
+i need a counselor,counselor_booking
+please help me find a therapist,counselor_booking
+book me an appointment with a counselor,counselor_booking
+i would like to speak with a professional,counselor_booking
+connect me with a counselor,counselor_booking
+what does my result indicate,score_meaning
+can you explain my risk level,score_meaning
+help me understand my test result,score_meaning
+what does this score tell me,score_meaning
+i am struggling with my mental health,general_resources
+what can i do to feel better,general_resources
+give me some coping strategies,general_resources
+how do i relax,general_resources
+i am depressed,general_resources
+i feel really sad,general_resources
+i am struggling emotionally,general_resources
+i feel low today,general_resources
+i am not feeling okay mentally,general_resources
+i feel anxious all the time,general_resources
+i am going through a hard time,general_resources
+i feel really down lately,general_resources
+my mood has been really low,general_resources
+i feel emotionally exhausted,general_resources

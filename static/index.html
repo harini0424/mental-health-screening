@@ -337,54 +337,81 @@ async function submitScreening() {
   }
 }
 </script>
-<div id="faqWidget" style="position:fixed; bottom:20px; right:20px; z-index:100;">
-  <button id="faqToggle" style="background:#0f7173;color:white;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">💬</button>
-  <div id="faqPanel" style="display:none;position:absolute;bottom:66px;right:0;width:300px;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:16px;">
-    <h3 style="margin-top:0;color:#0f4c4d;font-size:16px;">Quick Help</h3>
-    <div id="faqQuestions"></div>
-    <div id="faqAnswer" style="margin-top:12px;font-size:14px;color:#33474b;display:none;background:#f4f7f8;padding:12px;border-radius:8px;"></div>
+
+<div id="chatWidget" style="position:fixed; bottom:20px; right:20px; z-index:100;">
+  <button id="chatToggle" style="background:#0f7173;color:white;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);">💬</button>
+  <div id="chatPanel" style="display:none;position:absolute;bottom:66px;right:0;width:320px;height:420px;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);flex-direction:column;overflow:hidden;">
+    <div style="background:#0f7173;color:white;padding:14px 16px;font-weight:700;">MindCheck Assistant</div>
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:14px;background:#f7f9fb;height:300px;"></div>
+    <div style="display:flex;border-top:1px solid #eee;">
+      <input id="chatInput" type="text" placeholder="Type your question..." style="flex:1;border:none;padding:12px;font-size:13px;outline:none;">
+      <button id="chatSend" style="background:#0f7173;color:white;border:none;padding:0 16px;cursor:pointer;">Send</button>
+    </div>
   </div>
 </div>
 
 <script>
-const faqData = [
-  {
-    q: "What does my score mean?",
-    a: "Your PHQ-9 and GAD-7 scores map to a severity band (minimal, mild, moderate, severe) based on validated clinical rubrics. Higher scores suggest more significant symptoms, but this is a screening tool, not a diagnosis."
-  },
-  {
-    q: "How do I book a counselor?",
-    a: "If your result suggests booking a counselor, we recommend reaching out to a licensed mental health professional in your area, or your institution's counseling services if available."
-  },
-  {
-    q: "What's a crisis helpline number?",
-    a: "India: iCall — 9152987821 (Mon-Sat, 8am-10pm). AASRA — 9820466726 (24x7). If you're in immediate danger, contact your local emergency number."
-  },
-  {
-    q: "Is this a diagnosis?",
-    a: "No. This tool provides a screening based on standard questionnaires, not a clinical diagnosis. Please consult a licensed professional for a full evaluation."
+const chatToggle = document.getElementById("chatToggle");
+const chatPanelEl = document.getElementById("chatPanel");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const chatSend = document.getElementById("chatSend");
+
+chatToggle.onclick = () => {
+  const isHidden = chatPanelEl.style.display === "none" || chatPanelEl.style.display === "";
+  chatPanelEl.style.display = isHidden ? "flex" : "none";
+  if (isHidden && chatMessages.children.length === 0) {
+    addMessage("Hi! I'm here to help answer questions about your screening, resources, or getting support. What would you like to know?", "bot");
   }
-];
-
-const faqToggle = document.getElementById("faqToggle");
-const faqPanel = document.getElementById("faqPanel");
-const faqQuestions = document.getElementById("faqQuestions");
-const faqAnswer = document.getElementById("faqAnswer");
-
-faqData.forEach((item, i) => {
-  const btn = document.createElement("button");
-  btn.innerText = item.q;
-  btn.style = "display:block;width:100%;text-align:left;background:#f4f7f8;border:none;padding:8px 10px;margin-bottom:6px;border-radius:6px;cursor:pointer;font-size:13px;";
-  btn.onclick = () => {
-    faqAnswer.innerText = item.a;
-    faqAnswer.style.display = "block";
-  };
-  faqQuestions.appendChild(btn);
-});
-
-faqToggle.onclick = () => {
-  faqPanel.style.display = faqPanel.style.display === "none" ? "block" : "none";
 };
+
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.style.marginBottom = "10px";
+  msg.style.maxWidth = "85%";
+  msg.style.padding = "8px 12px";
+  msg.style.borderRadius = "10px";
+  msg.style.fontSize = "13px";
+  msg.style.lineHeight = "1.4";
+  if (sender === "user") {
+    msg.style.background = "#0f7173";
+    msg.style.color = "white";
+    msg.style.marginLeft = "auto";
+  } else {
+    msg.style.background = "white";
+    msg.style.color = "#222";
+    msg.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+  }
+  msg.innerText = text;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendChatMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  chatInput.value = "";
+
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await response.json();
+    addMessage(data.response, "bot");
+  } catch (err) {
+    addMessage("Sorry, something went wrong. Please try again.", "bot");
+  }
+}
+
+chatSend.onclick = sendChatMessage;
+chatInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendChatMessage();
+});
 </script>
+
 </body>
 </html>
