@@ -217,6 +217,7 @@
     </div>
     <p id="actionText" style="font-weight:600;"></p>
     <div class="suggestions" id="suggestionsBox"></div>
+    <div class="suggestions" id="insightsBox" style="margin-top:16px;"></div>
     <div class="crisis-box" id="crisisBox" style="display:none;">
       <p>⚠ If you're having thoughts of self-harm, please reach out immediately: call your local emergency number, or a crisis helpline. You are not alone, and help is available right now.</p>
     </div>
@@ -333,6 +334,37 @@ async function submitScreening() {
 
     document.getElementById("crisisBox").style.display = data.self_harm_flag ? "block" : "none";
 
+    // Fetch symptom pattern insights
+    const insightsResponse = await fetch("/insights", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phq9_answers, gad7_answers })
+    });
+    const insightsData = await insightsResponse.json();
+
+    if (insightsData.top_affected.length > 0) {
+      const maxScore = 3;
+      let barsHtml = insightsData.top_affected.map(item => `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+            <span style="font-weight:600;">${item.domain}</span>
+            <span style="color:#6b7c80;">${item.score}/3</span>
+          </div>
+          <div style="background:#e0e8e8;border-radius:6px;height:8px;overflow:hidden;">
+            <div style="background:#0f7173;height:100%;width:${(item.score / maxScore) * 100}%;"></div>
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("insightsBox").innerHTML = `
+        <h3 style="margin-top:0;color:#0f4c4d;font-size:16px;">Your Most Affected Areas</h3>
+        <p style="font-size:13px;color:#6b7c80;margin-top:-6px;">Based on your answers, these areas seem to be affecting you most right now.</p>
+        ${barsHtml}
+      `;
+    } else {
+      document.getElementById("insightsBox").innerHTML = "";
+    }
+
   } catch (err) {
     resultDiv.innerHTML = "<p>Something went wrong. Please try again.</p>";
   }
@@ -350,7 +382,6 @@ async function submitScreening() {
     </div>
   </div>
 </div>
-
 <script>
 const chatToggle = document.getElementById("chatToggle");
 const chatPanelEl = document.getElementById("chatPanel");
@@ -358,11 +389,14 @@ const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 const chatSend = document.getElementById("chatSend");
 
+const quickReplies = ["What does my score mean?", "How do I book a counselor?", "Crisis helpline numbers", "Self-care tips"];
+
 chatToggle.onclick = () => {
   const isHidden = chatPanelEl.style.display === "none" || chatPanelEl.style.display === "";
   chatPanelEl.style.display = isHidden ? "flex" : "none";
   if (isHidden && chatMessages.children.length === 0) {
     addMessage("Hi! I'm here to help answer questions about your screening, resources, or getting support. What would you like to know?", "bot");
+    showQuickReplies();
   }
 };
 
@@ -388,12 +422,47 @@ function addMessage(text, sender) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-async function sendChatMessage() {
-  const text = chatInput.value.trim();
+function showQuickReplies() {
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexWrap = "wrap";
+  wrap.style.gap = "6px";
+  wrap.style.marginBottom = "10px";
+  quickReplies.forEach(q => {
+    const btn = document.createElement("button");
+    btn.innerText = q;
+    btn.style = "background:#e8f4f3;color:#0f7173;border:none;padding:6px 10px;border-radius:14px;font-size:12px;cursor:pointer;";
+    btn.onclick = () => {
+      wrap.remove();
+      sendChatMessage(q);
+    };
+    wrap.appendChild(btn);
+  });
+  chatMessages.appendChild(wrap);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const typing = document.createElement("div");
+  typing.id = "typingIndicator";
+  typing.style = "background:white;color:#999;padding:8px 12px;border-radius:10px;font-size:13px;max-width:60px;box-shadow:0 1px 3px rgba(0,0,0,0.1);margin-bottom:10px;";
+  typing.innerText = "• • •";
+  chatMessages.appendChild(typing);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById("typingIndicator");
+  if (el) el.remove();
+}
+
+async function sendChatMessage(overrideText) {
+  const text = overrideText || chatInput.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
   chatInput.value = "";
+  showTypingIndicator();
 
   try {
     const response = await fetch("/chat", {
@@ -402,17 +471,22 @@ async function sendChatMessage() {
       body: JSON.stringify({ message: text })
     });
     const data = await response.json();
-    addMessage(data.response, "bot");
+
+    setTimeout(() => {
+      removeTypingIndicator();
+      addMessage(data.response, "bot");
+      showQuickReplies();
+    }, 500);
   } catch (err) {
+    removeTypingIndicator();
     addMessage("Sorry, something went wrong. Please try again.", "bot");
   }
 }
 
-chatSend.onclick = sendChatMessage;
+chatSend.onclick = () => sendChatMessage();
 chatInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendChatMessage();
 });
 </script>
-
 </body>
 </html>

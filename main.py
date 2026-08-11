@@ -104,6 +104,39 @@ def screen(request: ScreeningRequest):
 
 
 @app.post("/chat")
+class InsightsRequest(BaseModel):
+    phq9_answers: List[int]
+    gad7_answers: List[int]
+
+
+@app.post("/insights")
+def get_insights(request: InsightsRequest):
+    phq9_domains = [
+        "Interest & Pleasure", "Mood", "Sleep", "Energy",
+        "Appetite", "Self-Worth", "Concentration", "Psychomotor", "Self-Harm Risk"
+    ]
+    gad7_domains = [
+        "Nervousness", "Worry Control", "Excessive Worry", "Relaxation",
+        "Restlessness", "Irritability", "Fear"
+    ]
+
+    domain_scores = {}
+
+    for i, score in enumerate(request.phq9_answers):
+        if i < len(phq9_domains):
+            domain_scores[phq9_domains[i]] = score
+
+    for i, score in enumerate(request.gad7_answers):
+        if i < len(gad7_domains):
+            domain_scores[gad7_domains[i]] = score
+
+    sorted_domains = sorted(domain_scores.items(), key=lambda x: x[1], reverse=True)
+    top_domains = [{"domain": d, "score": s} for d, s in sorted_domains if s > 0][:3]
+
+    return {
+        "all_domains": [{"domain": d, "score": s} for d, s in domain_scores.items()],
+        "top_affected": top_domains
+    }
 def chat(request: ChatRequest):
     result = get_chatbot_response(request.message)
     return result
